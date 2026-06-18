@@ -22,22 +22,27 @@ def statement(invoice, plays):
             credits += math.floor(perf['audience'] / 5)
         return credits
 
+    def amount_for_tragedy(perf):
+        this_amount = 40000
+        if perf['audience'] > 30:
+            this_amount += 1000 * (perf['audience'] - 30)
+        return this_amount
+
+    def amount_for_comedy(perf):
+        this_amount = 30000
+        if perf['audience'] > 20:
+            this_amount += 10000 + 500 * (perf['audience'] - 20)
+        this_amount += 300 * perf['audience']
+        return this_amount
+
     def amount_for(perf):
         play = play_for(perf)
         if play['type'] == "tragedy":
-            this_amount = 40000
-            if perf['audience'] > 30:
-                this_amount += 1000 * (perf['audience'] - 30)
+            return amount_for_tragedy(perf)
         elif play['type'] == "comedy":
-            this_amount = 30000
-            if perf['audience'] > 20:
-                this_amount += 10000 + 500 * (perf['audience'] - 20)
-
-            this_amount += 300 * perf['audience']
-
+            return amount_for_comedy(perf)
         else:
             raise ValueError(f'unknown type: {play["type"]}')
-        return this_amount
 
     for perf in invoice['performances']:
         play = play_for(perf)
