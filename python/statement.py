@@ -9,6 +9,15 @@ def statement(invoice, plays):
     def format_as_dollars(amount):
         return f"${amount:0,.2f}"
 
+    def calculate_credits(perf, play):
+        credits = 0
+        # add volume credits
+        credits += max(perf['audience'] - 30, 0)
+        # add extra credit for every ten comedy attendees
+        if "comedy" == play["type"]:
+            credits += math.floor(perf['audience'] / 5)
+        return credits
+
     for perf in invoice['performances']:
         play = plays[perf['playID']]
         if play['type'] == "tragedy":
@@ -25,11 +34,8 @@ def statement(invoice, plays):
         else:
             raise ValueError(f'unknown type: {play["type"]}')
 
-        # add volume credits
-        volume_credits += max(perf['audience'] - 30, 0)
-        # add extra credit for every ten comedy attendees
-        if "comedy" == play["type"]:
-            volume_credits += math.floor(perf['audience'] / 5)
+        volume_credits += calculate_credits(perf, play)
+
         # print line for this order
         result += f' {play["name"]}: {format_as_dollars(this_amount/100)} ({perf["audience"]} seats)\n'
         total_amount += this_amount
@@ -37,5 +43,3 @@ def statement(invoice, plays):
     result += f'Amount owed is {format_as_dollars(total_amount/100)}\n'
     result += f'You earned {volume_credits} credits\n'
     return result
-
-
