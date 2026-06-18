@@ -9,7 +9,11 @@ def statement(invoice, plays):
     def format_as_dollars(amount):
         return f"${amount:0,.2f}"
 
-    def calculate_credits(perf, play):
+    def play_for(perf):
+        return plays[perf['playID']]
+
+    def calculate_credits(perf):
+        play = play_for(perf)
         credits = 0
         # add volume credits
         credits += max(perf['audience'] - 30, 0)
@@ -18,7 +22,8 @@ def statement(invoice, plays):
             credits += math.floor(perf['audience'] / 5)
         return credits
 
-    def calculate_amount(perf, play):
+    def amount_for(perf):
+        play = play_for(perf)
         if play['type'] == "tragedy":
             this_amount = 40000
             if perf['audience'] > 30:
@@ -35,14 +40,13 @@ def statement(invoice, plays):
         return this_amount
 
     for perf in invoice['performances']:
-        play = plays[perf['playID']]
-        this_amount = calculate_amount(perf, play)
+        play = play_for(perf)
 
-        volume_credits += calculate_credits(perf, play)
+        volume_credits += calculate_credits(perf)
 
         # print line for this order
-        result += f' {play["name"]}: {format_as_dollars(this_amount/100)} ({perf["audience"]} seats)\n'
-        total_amount += this_amount
+        result += f' {play["name"]}: {format_as_dollars(amount_for(perf)/100)} ({perf["audience"]} seats)\n'
+        total_amount += amount_for(perf)
 
     result += f'Amount owed is {format_as_dollars(total_amount/100)}\n'
     result += f'You earned {volume_credits} credits\n'
