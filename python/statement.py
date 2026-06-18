@@ -18,8 +18,7 @@ def statement(invoice, plays):
             credits += math.floor(perf['audience'] / 5)
         return credits
 
-    for perf in invoice['performances']:
-        play = plays[perf['playID']]
+    def calculate_amount(perf, play):
         if play['type'] == "tragedy":
             this_amount = 40000
             if perf['audience'] > 30:
@@ -33,6 +32,11 @@ def statement(invoice, plays):
 
         else:
             raise ValueError(f'unknown type: {play["type"]}')
+        return this_amount
+
+    for perf in invoice['performances']:
+        play = plays[perf['playID']]
+        this_amount = calculate_amount(perf, play)
 
         volume_credits += calculate_credits(perf, play)
 
